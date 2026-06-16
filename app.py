@@ -179,18 +179,19 @@ def draw_section(url, ev_type, query, team_filter=None):
         st.write("")
         
     if not has_data and query:
-        st.warning(f"Oshi tidak ditemukan di tim ini.")
+        st.warning(f"Member tidak ditemukan di tim ini.")
 
 # --- 6. LAYOUT LOKASI & TABS ---
 kota = st.radio("📍 Pilih Lokasi Event:", ["Surabaya", "Yogyakarta"], horizontal=True)
 
 # Menambahkan Info Petunjuk untuk user awam
-st.info("💡 **Petunjuk:** Klik tombol **SISA** pada kartu oshi kamu untuk langsung menuju halaman pembelian tiket JKT48.")
+st.info("💡 **Petunjuk:** Klik tombol **SISA** pada kartu member untuk langsung menuju halaman pembelian tiket JKT48.")
 st.write("") 
 
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
+# Saat API rilis, cukup isi string kosong ("") dengan URL API dari JKT48
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
     api_2shot_p  = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Passion Surabaya di sini
@@ -212,7 +213,7 @@ with t1:
         tabs_2s_config.append(("🔥 TEAM PASSION", api_2shot_p, "PASSION"))
         
     if tabs_2s_config:
-        query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
+        query_2s = st.text_input("🔍 Cari Member di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
         rendered_tabs_2s = st.tabs([t[0] for t in tabs_2s_config])
         
         for idx, tab in enumerate(rendered_tabs_2s):
@@ -231,7 +232,7 @@ with t2:
         tabs_mng_config.append(("🔥 TEAM PASSION", api_mng_p, "PASSION"))
         
     if tabs_mng_config:
-        query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
+        query_mng = st.text_input("🔍 Cari Member di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
         rendered_tabs_mng = st.tabs([t[0] for t in tabs_mng_config])
         
         for idx, tab in enumerate(rendered_tabs_mng):
