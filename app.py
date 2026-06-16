@@ -166,15 +166,8 @@ def draw_section(url, ev_type, query, team_filter=None):
             else: cls, lbl = "avail", f"SISA {current_quota}"
             
             # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru
-            html += f'''
-            <a href="{purchase_link}" target="_blank" class="card-link">
-                <div class="ldp-card {cls}">
-                    <div class="c-jalur">{m["label"]}</div>
-                    <div class="c-member">{m["member_name"]}</div>
-                    <div class="c-badge">{lbl}</div>
-                </div>
-            </a>
-            '''
+            # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru
+            html += f'<a href="{purchase_link}" target="_blank" class="card-link"><div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div></a>'
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
