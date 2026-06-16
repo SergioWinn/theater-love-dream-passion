@@ -106,7 +106,11 @@ def draw_section(url, ev_type, query, team_filter=None):
             continue
 
         has_data = True
-        st.markdown(f"#### {sesi['label']} <small style='opacity:0.5'>| {sesi['start_time'][:5]} - {sesi['end_time'][:5]}</small>", unsafe_allow_html=True)
+        
+        # Membersihkan teks nama tim yang redundan di tampilan judul sesi
+        display_label = sesi['label'].replace(" (LOVE)", "").replace(" (DREAM)", "").replace(" (PASSION)", "")
+        
+        st.markdown(f"#### {display_label} <small style='opacity:0.5'>| {sesi['start_time'][:5]} - {sesi['end_time'][:5]}</small>", unsafe_allow_html=True)
         
         html = '<div class="cards-grid">'
         for m in members:
@@ -119,7 +123,7 @@ def draw_section(url, ev_type, query, team_filter=None):
             if ticket_key in st.session_state.quota_history:
                 prev_quota = st.session_state.quota_history[ticket_key]
                 if current_quota > prev_quota:
-                    st.toast(f"RESTOCK: {m['member_name']} ({m['label']}) - Sesi {sesi['label']} (Kuota: {current_quota})", icon="🚨")
+                    st.toast(f"RESTOCK: {m['member_name']} ({m['label']}) - Sesi {display_label} (Kuota: {current_quota})", icon="🚨")
                     
             st.session_state.quota_history[ticket_key] = current_quota
             # --------------------------
