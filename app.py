@@ -3,7 +3,7 @@ import requests
 from streamlit_autorefresh import st_autorefresh
 
 # --- 1. KONFIGURASI HALAMAN ---
-st.set_page_config(page_title="LOVE DREAM PASSION - SBY & YGY", layout="wide", page_icon="🔴")
+st.set_page_config(page_title="THEATER LOVE DREAM PASSION", layout="wide", page_icon="🔴")
 
 # --- 2. STABLE REFRESH (5 Detik) ---
 st_autorefresh(interval=5000, key="ldp_tour_refresh_system")
@@ -21,7 +21,8 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 
 /* Header & Badge */
 .ldp-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; }
-.ldp-title { font-weight: 800; font-size: 2.5rem; margin: 0; margin-bottom: 10px; }
+.ldp-title { font-weight: 800; font-size: 2.5rem; margin: 0; margin-bottom: 5px; }
+.ldp-subtitle { font-weight: 600; font-size: 1.2rem; opacity: 0.7; margin-bottom: 15px; margin-top: 0; }
 .live-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; color: #10B981; background: rgba(16,185,129,0.1); padding: 5px 15px; border-radius: 30px; border: 1px solid rgba(16,185,129,0.2); }
 .live-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; animation: blink 2s infinite; }
 @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } }
@@ -58,18 +59,33 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 .ldp-card.warn .c-badge { background: rgba(251,191,36,0.2); color: #D97706; }
 .ldp-card.sold .c-badge { background: #EF4444; color: #fff; }
 
+/* Footer */
+.ldp-footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); opacity: 0.7; font-size: 14px; }
+.ldp-footer a { color: #10B981; text-decoration: none; font-weight: 700; }
+.ldp-footer a:hover { text-decoration: underline; }
+
 /* Mobile optimization */
 @media (max-width: 500px) { 
     .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } 
     .ldp-card { padding: 18px 10px; }
     .c-member { font-size: 14px; }
+    .ldp-title { font-size: 2rem; }
 }
 </style>
 """
 st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
 # --- 4. RENDER HEADER ---
-st.markdown('<div class="ldp-header"><h1 class="ldp-title">LDP Tour: Surabaya & Yogyakarta</h1><div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div></div>', unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="ldp-header">
+        <h1 class="ldp-title">Theater Love Dream Passion</h1>
+        <p class="ldp-subtitle">Surabaya & Yogyakarta</p>
+        <div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
 
 # --- 5. DATA ENGINE ---
 @st.cache_data(ttl=4)
@@ -158,7 +174,6 @@ else: # Yogyakarta
 
 # --- TAB 1: INTERFACE 2-SHOT ---
 with t1:
-    # Membangun konfigurasi tab secara dinamis berdasarkan ketersediaan URL
     tabs_2s_config = []
     if api_2shot_ld:
         tabs_2s_config.append(("🩷 TEAM LOVE", api_2shot_ld, "LOVE"))
@@ -178,7 +193,6 @@ with t1:
 
 # --- TAB 2: INTERFACE MEET & GREET ---
 with t2:
-    # Membangun konfigurasi tab secara dinamis berdasarkan ketersediaan URL
     tabs_mng_config = []
     if api_mng_ld:
         tabs_mng_config.append(("🩷 TEAM LOVE", api_mng_ld, "LOVE"))
@@ -195,3 +209,13 @@ with t2:
                 draw_section(tabs_mng_config[idx][1], "mng", query_mng, tabs_mng_config[idx][2])
     else:
         st.info("🎟️ Data/API Meet & Greet belum dirilis untuk kota ini.")
+
+# --- 7. FOOTER / KREDIT ---
+st.markdown(
+    """
+    <div class="ldp-footer">
+        Developed with ❤️ by <a href="https://x.com/estrellawin19" target="_blank">@estrellawin19</a>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
