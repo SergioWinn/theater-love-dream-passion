@@ -38,6 +38,9 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 /* Grid System */
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; }
 
+/* Link Wrapper agar layout grid tidak pecah */
+.card-link { text-decoration: none; color: inherit; display: block; height: 100%; }
+
 /* Card Design */
 .ldp-card { 
     background: rgba(128,128,128,0.05); 
@@ -49,6 +52,7 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
     justify-content: space-between; 
     text-align: center; 
     transition: 0.3s ease;
+    height: 100%;
 }
 .ldp-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: rgba(128,128,128,0.3); }
 
@@ -116,6 +120,14 @@ def draw_section(url, ev_type, query, team_filter=None):
         st.info("Menunggu data terbaru dari server JKT48...")
         return
 
+    # Mengekstrak ID Event (Misal: EX3773) dari URL API untuk digabungkan ke Link Pembelian
+    try:
+        event_id = url.split("/exclusives/")[1].split("/")[0]
+    except:
+        event_id = ""
+        
+    purchase_link = f"https://jkt48.com/purchase/exclusive?code={event_id}"
+
     has_data = False
     for sesi in data.get('data', []):
         if team_filter and team_filter.upper() not in sesi['label'].upper():
@@ -153,7 +165,16 @@ def draw_section(url, ev_type, query, team_filter=None):
             elif current_quota < limit: cls, lbl = "warn", f"SISA {current_quota}"
             else: cls, lbl = "avail", f"SISA {current_quota}"
             
-            html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
+            # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru
+            html += f'''
+            <a href="{purchase_link}" target="_blank" class="card-link">
+                <div class="ldp-card {cls}">
+                    <div class="c-jalur">{m["label"]}</div>
+                    <div class="c-member">{m["member_name"]}</div>
+                    <div class="c-badge">{lbl}</div>
+                </div>
+            </a>
+            '''
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
