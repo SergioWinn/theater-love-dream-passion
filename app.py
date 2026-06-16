@@ -38,10 +38,9 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 /* Grid System */
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; }
 
-/* Link Wrapper agar layout grid tidak pecah */
-a.card-link { text-decoration: none !important; color: inherit !important; display: block; height: 100%; cursor: pointer; }
-a.card-link:hover { text-decoration: none !important; color: inherit !important; }
-a.card-link .c-member, a.card-link .c-jalur { color: inherit !important; text-decoration: none !important; }
+/* Link Badge Styling (Hanya tombol SISA yang bisa diklik) */
+a.badge-link { text-decoration: none !important; display: block; margin-top: auto; }
+a.badge-link:hover .c-badge { transform: scale(1.05); filter: brightness(0.95); }
 
 /* Card Design */
 .ldp-card { 
@@ -61,18 +60,18 @@ a.card-link .c-member, a.card-link .c-jalur { color: inherit !important; text-de
 /* Border Status */
 .ldp-card.avail { border-bottom: 5px solid #10B981; }
 .ldp-card.warn { border-bottom: 5px solid #FBBF24; animation: glow 2s infinite; }
-.ldp-card.sold { border-bottom: 5px solid #EF4444; opacity: 0.7; filter: grayscale(30%); cursor: not-allowed; }
-.ldp-card.sold:hover { transform: none; box-shadow: none; } /* Matikan animasi hover untuk yang HABIS */
+.ldp-card.sold { border-bottom: 5px solid #EF4444; opacity: 0.7; filter: grayscale(30%); }
+.ldp-card.sold:hover { transform: none; box-shadow: none; } /* Matikan animasi hover untuk kartu HABIS */
 
 @keyframes glow { 0% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } 50% { box-shadow: 0 0 15px rgba(251,191,36,0.3); } 100% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } }
 
 .c-jalur { font-size: 10px; opacity: 0.5; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
 .c-member { font-weight: 700; font-size: 16px; line-height: 1.2; margin-bottom: 20px; height: 2.5em; overflow: hidden; }
 
-.c-badge { font-size: 10px; font-weight: 800; padding: 7px; border-radius: 20px; text-transform: uppercase; width: 100%; display: block; }
-.ldp-card.avail .c-badge { background: rgba(16,185,129,0.15); color: #10B981; }
-.ldp-card.warn .c-badge { background: rgba(251,191,36,0.2); color: #D97706; }
-.ldp-card.sold .c-badge { background: #EF4444; color: #fff; }
+.c-badge { font-size: 10px; font-weight: 800; padding: 7px; border-radius: 20px; text-transform: uppercase; width: 100%; display: block; transition: 0.2s; }
+.ldp-card.avail .c-badge { background: rgba(16,185,129,0.15); color: #10B981; cursor: pointer; }
+.ldp-card.warn .c-badge { background: rgba(251,191,36,0.2); color: #D97706; cursor: pointer; }
+.ldp-card.sold .c-badge { background: #EF4444; color: #fff; cursor: not-allowed; }
 
 /* Mobile optimization */
 @media (max-width: 500px) { 
@@ -164,19 +163,19 @@ def draw_section(url, ev_type, query, team_filter=None):
             st.session_state.quota_history[ticket_key] = current_quota
             # --------------------------
             
-            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA
+            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA (MENCEGAH KEPENCET DI HP)
             if current_quota <= 0: 
                 cls, lbl = "sold", "HABIS"
-                # Tiket habis -> Render TANPA tag <a> sehingga tidak bisa diklik
+                # Tiket habis -> Render TANPA tag <a> sama sekali
                 html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
             else: 
                 if current_quota < limit: 
-                    cls, lbl = "warn", f"SISA {current_quota}"
+                    cls, lbl = "warn", f"SISA {current_quota} 🎫"
                 else: 
-                    cls, lbl = "avail", f"SISA {current_quota}"
+                    cls, lbl = "avail", f"SISA {current_quota} 🎫"
                 
-                # Tiket tersedia -> Render DENGAN tag <a> beserta pop-up konfirmasi js (onclick)
-                html += f'<a href="{purchase_link}" target="_blank" class="card-link" onclick="return confirm(\'Lanjutkan ke halaman pembelian JKT48 untuk {m["member_name"]}?\');"><div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div></a>'
+                # Tiket tersedia -> HANYA BADGE "SISA X" YANG DIBUNGKUS LINK <a>
+                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><a href="{purchase_link}" target="_blank" class="badge-link"><div class="c-badge">{lbl}</div></a></div>'
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
