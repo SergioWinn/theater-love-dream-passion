@@ -120,60 +120,75 @@ def draw_section(url, ev_type, query, team_filter=None):
         st.info("Menunggu data terbaru dari server JKT48...")
         return
 
-    # Mengekstrak ID Event dari URL API
+    # Mengekstrak ID Event secara akurat baik dari format baru maupun lama
     try:
-        event_id = url.split("/exclusives/")[1].split("/")[0]
+        # Mengambil kode EX.. dan membersihkan parameter ?lang=id atau /bonus
+        event_id = url.split("/exclusives/")[1].split("/")[0].split("?")[0]
     except:
         event_id = ""
         
     purchase_link = f"https://jkt48.com/purchase/exclusive?code={event_id}"
 
+    # MENYESUAIKAN FORMAT DATA (SUPPORT API LAMA DAN BARU)
+    raw_data = data.get('data')
+    if isinstance(raw_data, dict):
+        sessions = raw_data.get('session', []) # Format Baru
+    elif isinstance(raw_data, list):
+        sessions = raw_data # Format Lama
+    else:
+        sessions = []
+
     has_data = False
-    for sesi in data.get('data', []):
-        if team_filter and team_filter.upper() not in sesi['label'].upper():
+    for sesi in sessions:
+        if team_filter and team_filter.upper() not in sesi.get('label', '').upper():
             continue
 
-        members = sesi.get('session_members', [])
+        # Cek session_detail (Format Baru) atau session_members (Format Lama)
+        members = sesi.get('session_detail', sesi.get('session_members', []))
+        
+        # Filter pencarian Member
         if query:
-            members = [m for m in members if query in m.get('member_name', '').lower()]
+            members = [m for m in members if query in m.get('jkt48_member_name', m.get('member_name', '')).lower()]
         
         if not members: 
             continue
 
         has_data = True
-        display_label = sesi['label'].replace(" (LOVE)", "").replace(" (DREAM)", "").replace(" (PASSION)", "")
+        display_label = sesi.get('label', '').replace(" (LOVE)", "").replace(" (DREAM)", "").replace(" (PASSION)", "")
         
-        st.markdown(f"#### {display_label} <small style='opacity:0.5'>| {sesi['start_time'][:5]} - {sesi['end_time'][:5]}</small>", unsafe_allow_html=True)
+        st.markdown(f"#### {display_label} <small style='opacity:0.5'>| {sesi.get('start_time', '')[:5]} - {sesi.get('end_time', '')[:5]}</small>", unsafe_allow_html=True)
         
         html = '<div class="cards-grid">'
         for m in members:
-            current_quota = m.get('quota', 0)
+            # Mengakomodasi perubahan nama key dari format baru dan lama
+            member_name = m.get('jkt48_member_name', m.get('member_name', ''))
+            current_quota = m.get('available_quota', m.get('quota', 0))
+            jalur_label = m.get("label", "")
+            
             limit = 5 if ev_type == "2shot" else 20
             
             # --- CEK RESTOCK TIKET ---
-            ticket_key = f"{ev_type}_{sesi['label']}_{m['member_name']}_{m['label']}"
+            ticket_key = f"{ev_type}_{sesi.get('label', '')}_{member_name}_{jalur_label}"
             
             if ticket_key in st.session_state.quota_history:
                 prev_quota = st.session_state.quota_history[ticket_key]
                 if current_quota > prev_quota:
-                    st.toast(f"RESTOCK: {m['member_name']} ({m['label']}) - Sesi {display_label} (Kuota: {current_quota})", icon="🚨")
+                    st.toast(f"RESTOCK: {member_name} ({jalur_label}) - Sesi {display_label} (Kuota: {current_quota})", icon="🚨")
                     
             st.session_state.quota_history[ticket_key] = current_quota
             # --------------------------
             
-            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA (MENCEGAH KEPENCET DI HP)
+            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA
             if current_quota <= 0: 
                 cls, lbl = "sold", "HABIS"
-                # Tiket habis -> Render TANPA tag <a> sama sekali
-                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
+                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{jalur_label}</div><div class="c-member">{member_name}</div><div class="c-badge">{lbl}</div></div>'
             else: 
                 if current_quota < limit: 
                     cls, lbl = "warn", f"SISA {current_quota}"
                 else: 
                     cls, lbl = "avail", f"SISA {current_quota}"
                 
-                # Tiket tersedia -> HANYA BADGE "SISA X" YANG DIBUNGKUS LINK <a>
-                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><a href="{purchase_link}" target="_blank" class="badge-link"><div class="c-badge">{lbl}</div></a></div>'
+                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{jalur_label}</div><div class="c-member">{member_name}</div><a href="{purchase_link}" target="_blank" class="badge-link"><div class="c-badge">{lbl}</div></a></div>'
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
@@ -191,16 +206,17 @@ st.write("")
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
-# Saat API rilis, cukup isi string kosong ("") dengan URL API dari JKT48
 if kota == "Surabaya":
-    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
-    api_2shot_p  = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Passion Surabaya di sini
-    api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A/bonus?lang=id"
-    api_mng_p    = "" # [PLACEHOLDER] Isi URL API MnG Team Passion Surabaya di sini
+    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id" 
+    api_2shot_p  = "" 
+    
+    # Kamu bisa mengganti URL di bawah dengan API yang baru tanpa bonus
+    api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A?lang=id" 
+    api_mng_p    = "" 
 else: # Yogyakarta
-    api_2shot_ld = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Love & Dream Yogyakarta di sini
+    api_2shot_ld = "" 
     api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EXCD2C/bonus?lang=id"
-    api_mng_ld   = "" # [PLACEHOLDER] Isi URL API MnG Team Love & Dream Yogyakarta di sini
+    api_mng_ld   = "" 
     api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXCB75/bonus?lang=id"
 
 # --- TAB 1: INTERFACE 2-SHOT ---
