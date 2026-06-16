@@ -143,43 +143,44 @@ st.write("")
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
+# Saat API rilis, cukup isi string kosong ("") dengan URL API dari JKT48
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
-    api_2shot_p  = "" 
+    api_2shot_p  = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Passion Surabaya di sini
     api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A/bonus?lang=id"
-    api_mng_p    = "" 
+    api_mng_p    = "" # [PLACEHOLDER] Isi URL API MnG Team Passion Surabaya di sini
 else: # Yogyakarta
-    api_2shot_ld = "" 
+    api_2shot_ld = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Love & Dream Yogyakarta di sini
     api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EXCD2C/bonus?lang=id"
-    api_mng_ld   = "" 
+    api_mng_ld   = "" # [PLACEHOLDER] Isi URL API MnG Team Love & Dream Yogyakarta di sini
     api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXCB75/bonus?lang=id"
 
 # --- TAB 1: INTERFACE 2-SHOT ---
 with t1:
     query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
     
-    st.markdown("### 🩷 Team Love")
+    st.markdown("### 🩷 TEAM LOVE")
     draw_section(api_2shot_ld, "2shot", query_2s, "LOVE")
     
     st.markdown("---")
-    st.markdown("### ⭐ Team Dream")
+    st.markdown("### ⭐ TEAM DREAM")
     draw_section(api_2shot_ld, "2shot", query_2s, "DREAM")
     
     st.markdown("---")
-    st.markdown("### 🔥 Team Passion")
+    st.markdown("### 🔥 TEAM PASSION")
     draw_section(api_2shot_p, "2shot", query_2s, "PASSION")
 
 # --- TAB 2: INTERFACE MEET & GREET ---
 with t2:
     query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
     
-    st.markdown("### 🩷 Team Love")
+    st.markdown("### 🩷 TEAM LOVE")
     draw_section(api_mng_ld, "mng", query_mng, "LOVE")
     
     st.markdown("---")
-    st.markdown("### ⭐ Team Dream")
+    st.markdown("### ⭐ TEAM DREAM")
     draw_section(api_mng_ld, "mng", query_mng, "DREAM")
     
     st.markdown("---")
-    st.markdown("### 🔥 Team Passion")
+    st.markdown("### 🔥 TEAM PASSION")
     draw_section(api_mng_p, "mng", query_mng, "PASSION")
