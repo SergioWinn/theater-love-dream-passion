@@ -85,7 +85,6 @@ def fetch_data(url):
 
 def draw_section(url, ev_type, query, team_filter=None):
     if not url:
-        # Langsung return tanpa memberikan pesan peringatan apapun
         return
 
     data = fetch_data(url)
@@ -106,8 +105,6 @@ def draw_section(url, ev_type, query, team_filter=None):
             continue
 
         has_data = True
-        
-        # Membersihkan teks nama tim yang redundan di tampilan judul sesi
         display_label = sesi['label'].replace(" (LOVE)", "").replace(" (DREAM)", "").replace(" (PASSION)", "")
         
         st.markdown(f"#### {display_label} <small style='opacity:0.5'>| {sesi['start_time'][:5]} - {sesi['end_time'][:5]}</small>", unsafe_allow_html=True)
@@ -147,7 +144,6 @@ st.write("")
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
-# Saat API rilis, cukup isi string kosong ("") dengan URL API dari JKT48
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
     api_2shot_p  = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Passion Surabaya di sini
@@ -163,28 +159,30 @@ else: # Yogyakarta
 with t1:
     query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
     
-    st.markdown("### 🩷 TEAM LOVE")
-    draw_section(api_2shot_ld, "2shot", query_2s, "LOVE")
+    # Sub-tabs untuk memisahkan setiap tim
+    tab_love_2s, tab_dream_2s, tab_passion_2s = st.tabs(["🩷 TEAM LOVE", "⭐ TEAM DREAM", "🔥 TEAM PASSION"])
     
-    st.markdown("---")
-    st.markdown("### ⭐ TEAM DREAM")
-    draw_section(api_2shot_ld, "2shot", query_2s, "DREAM")
-    
-    st.markdown("---")
-    st.markdown("### 🔥 TEAM PASSION")
-    draw_section(api_2shot_p, "2shot", query_2s, "PASSION")
+    with tab_love_2s:
+        draw_section(api_2shot_ld, "2shot", query_2s, "LOVE")
+        
+    with tab_dream_2s:
+        draw_section(api_2shot_ld, "2shot", query_2s, "DREAM")
+        
+    with tab_passion_2s:
+        draw_section(api_2shot_p, "2shot", query_2s, "PASSION")
 
 # --- TAB 2: INTERFACE MEET & GREET ---
 with t2:
     query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
     
-    st.markdown("### 🩷 TEAM LOVE")
-    draw_section(api_mng_ld, "mng", query_mng, "LOVE")
+    # Sub-tabs untuk memisahkan setiap tim
+    tab_love_mng, tab_dream_mng, tab_passion_mng = st.tabs(["🩷 TEAM LOVE", "⭐ TEAM DREAM", "🔥 TEAM PASSION"])
     
-    st.markdown("---")
-    st.markdown("### ⭐ TEAM DREAM")
-    draw_section(api_mng_ld, "mng", query_mng, "DREAM")
-    
-    st.markdown("---")
-    st.markdown("### 🔥 TEAM PASSION")
-    draw_section(api_mng_p, "mng", query_mng, "PASSION")
+    with tab_love_mng:
+        draw_section(api_mng_ld, "mng", query_mng, "LOVE")
+        
+    with tab_dream_mng:
+        draw_section(api_mng_ld, "mng", query_mng, "DREAM")
+        
+    with tab_passion_mng:
+        draw_section(api_mng_p, "mng", query_mng, "PASSION")
