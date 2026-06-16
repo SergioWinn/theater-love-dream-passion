@@ -144,6 +144,7 @@ st.write("")
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
+# Saat API rilis, cukup isi string kosong ("") dengan URL API dari JKT48
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
     api_2shot_p  = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Passion Surabaya di sini
@@ -157,32 +158,40 @@ else: # Yogyakarta
 
 # --- TAB 1: INTERFACE 2-SHOT ---
 with t1:
-    query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
-    
-    # Sub-tabs untuk memisahkan setiap tim
-    tab_love_2s, tab_dream_2s, tab_passion_2s = st.tabs(["🩷 TEAM LOVE", "⭐ TEAM DREAM", "🔥 TEAM PASSION"])
-    
-    with tab_love_2s:
-        draw_section(api_2shot_ld, "2shot", query_2s, "LOVE")
+    # Membangun konfigurasi tab secara dinamis berdasarkan ketersediaan URL
+    tabs_2s_config = []
+    if api_2shot_ld:
+        tabs_2s_config.append(("🩷 TEAM LOVE", api_2shot_ld, "LOVE"))
+        tabs_2s_config.append(("⭐ TEAM DREAM", api_2shot_ld, "DREAM"))
+    if api_2shot_p:
+        tabs_2s_config.append(("🔥 TEAM PASSION", api_2shot_p, "PASSION"))
         
-    with tab_dream_2s:
-        draw_section(api_2shot_ld, "2shot", query_2s, "DREAM")
+    if tabs_2s_config:
+        query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
+        rendered_tabs_2s = st.tabs([t[0] for t in tabs_2s_config])
         
-    with tab_passion_2s:
-        draw_section(api_2shot_p, "2shot", query_2s, "PASSION")
+        for idx, tab in enumerate(rendered_tabs_2s):
+            with tab:
+                draw_section(tabs_2s_config[idx][1], "2shot", query_2s, tabs_2s_config[idx][2])
+    else:
+        st.info("🎟️ Data/API 2-Shot belum dirilis untuk kota ini.")
 
 # --- TAB 2: INTERFACE MEET & GREET ---
 with t2:
-    query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
-    
-    # Sub-tabs untuk memisahkan setiap tim
-    tab_love_mng, tab_dream_mng, tab_passion_mng = st.tabs(["🩷 TEAM LOVE", "⭐ TEAM DREAM", "🔥 TEAM PASSION"])
-    
-    with tab_love_mng:
-        draw_section(api_mng_ld, "mng", query_mng, "LOVE")
+    # Membangun konfigurasi tab secara dinamis berdasarkan ketersediaan URL
+    tabs_mng_config = []
+    if api_mng_ld:
+        tabs_mng_config.append(("🩷 TEAM LOVE", api_mng_ld, "LOVE"))
+        tabs_mng_config.append(("⭐ TEAM DREAM", api_mng_ld, "DREAM"))
+    if api_mng_p:
+        tabs_mng_config.append(("🔥 TEAM PASSION", api_mng_p, "PASSION"))
         
-    with tab_dream_mng:
-        draw_section(api_mng_ld, "mng", query_mng, "DREAM")
+    if tabs_mng_config:
+        query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
+        rendered_tabs_mng = st.tabs([t[0] for t in tabs_mng_config])
         
-    with tab_passion_mng:
-        draw_section(api_mng_p, "mng", query_mng, "PASSION")
+        for idx, tab in enumerate(rendered_tabs_mng):
+            with tab:
+                draw_section(tabs_mng_config[idx][1], "mng", query_mng, tabs_mng_config[idx][2])
+    else:
+        st.info("🎟️ Data/API Meet & Greet belum dirilis untuk kota ini.")
