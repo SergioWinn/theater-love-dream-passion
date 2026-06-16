@@ -38,7 +38,7 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 /* Grid System */
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; }
 
-/* Link Badge Styling (Hanya tombol SISA yang bisa diklik) */
+/* Link Badge Styling */
 a.badge-link { text-decoration: none !important; display: block; margin-top: auto; }
 a.badge-link:hover .c-badge { transform: scale(1.05); filter: brightness(0.95); }
 
@@ -61,7 +61,6 @@ a.badge-link:hover .c-badge { transform: scale(1.05); filter: brightness(0.95); 
 .ldp-card.avail { border-bottom: 5px solid #10B981; }
 .ldp-card.warn { border-bottom: 5px solid #FBBF24; animation: glow 2s infinite; }
 .ldp-card.sold { border-bottom: 5px solid #EF4444; opacity: 0.7; filter: grayscale(30%); }
-.ldp-card.sold:hover { transform: none; box-shadow: none; } /* Matikan animasi hover untuk kartu HABIS */
 
 @keyframes glow { 0% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } 50% { box-shadow: 0 0 15px rgba(251,191,36,0.3); } 100% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } }
 
@@ -163,16 +162,16 @@ def draw_section(url, ev_type, query, team_filter=None):
             st.session_state.quota_history[ticket_key] = current_quota
             # --------------------------
             
-            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA (MENCEGAH KEPENCET DI HP)
+            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA
             if current_quota <= 0: 
                 cls, lbl = "sold", "HABIS"
-                # Tiket habis -> Render TANPA tag <a> sama sekali
+                # Tiket habis -> Render TANPA tag <a> sama sekali (kursor not-allowed ada di css)
                 html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
             else: 
                 if current_quota < limit: 
-                    cls, lbl = "warn", f"SISA {current_quota} 🎫"
+                    cls, lbl = "warn", f"SISA {current_quota}"
                 else: 
-                    cls, lbl = "avail", f"SISA {current_quota} 🎫"
+                    cls, lbl = "avail", f"SISA {current_quota}"
                 
                 # Tiket tersedia -> HANYA BADGE "SISA X" YANG DIBUNGKUS LINK <a>
                 html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><a href="{purchase_link}" target="_blank" class="badge-link"><div class="c-badge">{lbl}</div></a></div>'
