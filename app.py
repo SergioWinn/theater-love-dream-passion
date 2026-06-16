@@ -38,8 +38,8 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 /* Grid System */
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; }
 
-/* Fix Hyperlink Style (Hapus warna biru & garis bawah bawaan Streamlit) */
-a.card-link { text-decoration: none !important; color: inherit !important; display: block; height: 100%; }
+/* Link Wrapper agar layout grid tidak pecah */
+a.card-link { text-decoration: none !important; color: inherit !important; display: block; height: 100%; cursor: pointer; }
 a.card-link:hover { text-decoration: none !important; color: inherit !important; }
 a.card-link .c-member, a.card-link .c-jalur { color: inherit !important; text-decoration: none !important; }
 
@@ -61,7 +61,8 @@ a.card-link .c-member, a.card-link .c-jalur { color: inherit !important; text-de
 /* Border Status */
 .ldp-card.avail { border-bottom: 5px solid #10B981; }
 .ldp-card.warn { border-bottom: 5px solid #FBBF24; animation: glow 2s infinite; }
-.ldp-card.sold { border-bottom: 5px solid #EF4444; opacity: 0.7; filter: grayscale(30%); }
+.ldp-card.sold { border-bottom: 5px solid #EF4444; opacity: 0.7; filter: grayscale(30%); cursor: not-allowed; }
+.ldp-card.sold:hover { transform: none; box-shadow: none; } /* Matikan animasi hover untuk yang HABIS */
 
 @keyframes glow { 0% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } 50% { box-shadow: 0 0 15px rgba(251,191,36,0.3); } 100% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } }
 
@@ -122,7 +123,7 @@ def draw_section(url, ev_type, query, team_filter=None):
         st.info("Menunggu data terbaru dari server JKT48...")
         return
 
-    # Mengekstrak ID Event (Misal: EX3773) dari URL API untuk digabungkan ke Link Pembelian
+    # Mengekstrak ID Event dari URL API
     try:
         event_id = url.split("/exclusives/")[1].split("/")[0]
     except:
@@ -163,12 +164,19 @@ def draw_section(url, ev_type, query, team_filter=None):
             st.session_state.quota_history[ticket_key] = current_quota
             # --------------------------
             
-            if current_quota <= 0: cls, lbl = "sold", "HABIS"
-            elif current_quota < limit: cls, lbl = "warn", f"SISA {current_quota}"
-            else: cls, lbl = "avail", f"SISA {current_quota}"
-            
-            # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru (Satu baris rapat!)
-            html += f'<a href="{purchase_link}" target="_blank" class="card-link"><div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div></a>'
+            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA
+            if current_quota <= 0: 
+                cls, lbl = "sold", "HABIS"
+                # Tiket habis -> Render TANPA tag <a> sehingga tidak bisa diklik
+                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
+            else: 
+                if current_quota < limit: 
+                    cls, lbl = "warn", f"SISA {current_quota}"
+                else: 
+                    cls, lbl = "avail", f"SISA {current_quota}"
+                
+                # Tiket tersedia -> Render DENGAN tag <a> beserta pop-up konfirmasi js (onclick)
+                html += f'<a href="{purchase_link}" target="_blank" class="card-link" onclick="return confirm(\'Lanjutkan ke halaman pembelian JKT48 untuk {m["member_name"]}?\');"><div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div></a>'
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
