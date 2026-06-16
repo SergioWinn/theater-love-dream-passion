@@ -22,7 +22,15 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 /* Header & Badge */
 .ldp-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; }
 .ldp-title { font-weight: 800; font-size: 2.5rem; margin: 0; margin-bottom: 5px; }
-.ldp-subtitle { font-weight: 600; font-size: 1.2rem; opacity: 0.7; margin-bottom: 15px; margin-top: 0; }
+.ldp-subtitle { font-weight: 600; font-size: 1.2rem; opacity: 0.7; margin-bottom: 10px; margin-top: 0; }
+
+/* Credits & Donation */
+.credit-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 14px; }
+.credit-container a { color: #10B981; text-decoration: none; font-weight: 700; }
+.credit-container a:hover { text-decoration: underline; }
+.tako-btn { background: #FF424D; color: white !important; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; text-decoration: none !important; display: inline-flex; align-items: center; gap: 5px; }
+.tako-btn:hover { background: #E0353F; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(255,66,77,0.3); }
+
 .live-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; color: #10B981; background: rgba(16,185,129,0.1); padding: 5px 15px; border-radius: 30px; border: 1px solid rgba(16,185,129,0.2); }
 .live-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; animation: blink 2s infinite; }
 @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } }
@@ -59,17 +67,13 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 .ldp-card.warn .c-badge { background: rgba(251,191,36,0.2); color: #D97706; }
 .ldp-card.sold .c-badge { background: #EF4444; color: #fff; }
 
-/* Footer */
-.ldp-footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); opacity: 0.7; font-size: 14px; }
-.ldp-footer a { color: #10B981; text-decoration: none; font-weight: 700; }
-.ldp-footer a:hover { text-decoration: underline; }
-
 /* Mobile optimization */
 @media (max-width: 500px) { 
     .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } 
     .ldp-card { padding: 18px 10px; }
     .c-member { font-size: 14px; }
     .ldp-title { font-size: 2rem; }
+    .credit-container { flex-direction: column; gap: 10px; }
 }
 </style>
 """
@@ -81,6 +85,12 @@ st.markdown(
     <div class="ldp-header">
         <h1 class="ldp-title">Theater Love Dream Passion</h1>
         <p class="ldp-subtitle">Surabaya & Yogyakarta</p>
+        
+        <div class="credit-container">
+            <span>Developed by <a href="https://x.com/estrellawin19" target="_blank">@estrellawin19</a></span>
+            <a href="https://tako.id/Sportagame19Win" target="_blank" class="tako-btn">🐙 Support via Tako</a>
+        </div>
+        
         <div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div>
     </div>
     """, 
@@ -209,13 +219,3 @@ with t2:
                 draw_section(tabs_mng_config[idx][1], "mng", query_mng, tabs_mng_config[idx][2])
     else:
         st.info("🎟️ Data/API Meet & Greet belum dirilis untuk kota ini.")
-
-# --- 7. FOOTER / KREDIT ---
-st.markdown(
-    """
-    <div class="ldp-footer">
-        Developed with ❤️ by <a href="https://x.com/estrellawin19" target="_blank">@estrellawin19</a>
-    </div>
-    """, 
-    unsafe_allow_html=True
-)
