@@ -40,7 +40,6 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 
 /* Link Badge Styling */
 a.badge-link { text-decoration: none !important; display: block; margin-top: auto; }
-a.badge-link:hover .c-badge { transform: scale(1.05); filter: brightness(0.95); }
 
 /* Card Design */
 .ldp-card { 
@@ -67,7 +66,7 @@ a.badge-link:hover .c-badge { transform: scale(1.05); filter: brightness(0.95); 
 .c-jalur { font-size: 10px; opacity: 0.5; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
 .c-member { font-weight: 700; font-size: 16px; line-height: 1.2; margin-bottom: 20px; height: 2.5em; overflow: hidden; }
 
-.c-badge { font-size: 10px; font-weight: 800; padding: 7px; border-radius: 20px; text-transform: uppercase; width: 100%; display: block; transition: 0.2s; }
+.c-badge { font-size: 10px; font-weight: 800; padding: 7px; border-radius: 20px; text-transform: uppercase; width: 100%; display: block; }
 .ldp-card.avail .c-badge { background: rgba(16,185,129,0.15); color: #10B981; cursor: pointer; }
 .ldp-card.warn .c-badge { background: rgba(251,191,36,0.2); color: #D97706; cursor: pointer; }
 .ldp-card.sold .c-badge { background: #EF4444; color: #fff; cursor: not-allowed; }
@@ -162,10 +161,10 @@ def draw_section(url, ev_type, query, team_filter=None):
             st.session_state.quota_history[ticket_key] = current_quota
             # --------------------------
             
-            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA
+            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA (MENCEGAH KEPENCET DI HP)
             if current_quota <= 0: 
                 cls, lbl = "sold", "HABIS"
-                # Tiket habis -> Render TANPA tag <a> sama sekali (kursor not-allowed ada di css)
+                # Tiket habis -> Render TANPA tag <a> sama sekali
                 html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
             else: 
                 if current_quota < limit: 
@@ -184,12 +183,14 @@ def draw_section(url, ev_type, query, team_filter=None):
 
 # --- 6. LAYOUT LOKASI & TABS ---
 kota = st.radio("📍 Pilih Lokasi Event:", ["Surabaya", "Yogyakarta"], horizontal=True)
+
+# Menambahkan Info Petunjuk untuk user awam
+st.info("💡 **Petunjuk:** Klik tombol **SISA** pada kartu oshi kamu untuk langsung menuju halaman pembelian tiket JKT48.")
 st.write("") 
 
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
-# Saat API rilis, cukup isi string kosong ("") dengan URL API dari JKT48
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
     api_2shot_p  = "" # [PLACEHOLDER] Isi URL API 2-Shot Team Passion Surabaya di sini
