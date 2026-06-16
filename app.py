@@ -85,12 +85,10 @@ st.markdown(
     <div class="ldp-header">
         <h1 class="ldp-title">Theater Love Dream Passion</h1>
         <p class="ldp-subtitle">Surabaya & Yogyakarta</p>
-        
         <div class="credit-container">
             <span>Developed by <a href="https://x.com/estrellawin19" target="_blank">@estrellawin19</a></span>
             <a href="https://tako.id/Sportagame19Win" target="_blank" class="tako-btn">🐙 Support via Tako</a>
         </div>
-        
         <div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div>
     </div>
     """, 
