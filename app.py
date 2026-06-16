@@ -6,7 +6,6 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="LOVE DREAM PASSION - SBY & YGY", layout="wide", page_icon="🔴")
 
 # --- 2. STABLE REFRESH (5 Detik) ---
-# Menggunakan key yang unik untuk mencegah interferensi saat halaman reload
 st_autorefresh(interval=5000, key="ldp_tour_refresh_system")
 
 # --- INISIALISASI SESSION STATE UNTUK TRACKING KUOTA ---
@@ -73,7 +72,7 @@ st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 st.markdown('<div class="ldp-header"><h1 class="ldp-title">LDP Tour: Surabaya & Yogyakarta</h1><div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div></div>', unsafe_allow_html=True)
 
 # --- 5. DATA ENGINE ---
-@st.cache_data(ttl=4)
+@st.cache_data(ttl=4) # Cache berlaku 4 detik agar API tidak di-spam berlebihan
 def fetch_data(url):
     if not url:
         return None
@@ -84,22 +83,22 @@ def fetch_data(url):
     except:
         return None
 
-def draw_section(url, key_prefix, ev_type):
+def draw_section(url, ev_type, query, team_filter=None):
     if not url:
-        st.info("Menunggu API JKT48 dibuka / Data belum tersedia untuk sesi ini.")
+        st.info(f"API untuk tim ini belum rilis.")
         return
 
-    # Menambahkan key_prefix pada text_input agar state pencarian antar kota/tab tidak bentrok
-    s_key = f"input_{key_prefix}"
-    st.text_input("Cari Oshi...", key=s_key, placeholder="Ketik nama member...")
-    query = st.session_state.get(s_key, "").lower().strip()
-    
     data = fetch_data(url)
     if not data:
         st.info("Menunggu data terbaru dari server JKT48...")
         return
 
+    has_data = False
     for sesi in data.get('data', []):
+        # Memisahkan Sesi berdasarkan nama Tim (LOVE / DREAM / PASSION)
+        if team_filter and team_filter.upper() not in sesi['label'].upper():
+            continue
+
         members = sesi.get('session_members', [])
         if query:
             members = [m for m in members if query in m.get('member_name', '').lower()]
@@ -107,7 +106,8 @@ def draw_section(url, key_prefix, ev_type):
         if not members: 
             continue
 
-        st.markdown(f"#### {sesi['label']} <small style='opacity:0.5'>| {sesi['start_time'][:5]}-{sesi['end_time'][:5]}</small>", unsafe_allow_html=True)
+        has_data = True
+        st.markdown(f"#### {sesi['label']} <small style='opacity:0.5'>| {sesi['start_time'][:5]} - {sesi['end_time'][:5]}</small>", unsafe_allow_html=True)
         
         html = '<div class="cards-grid">'
         for m in members:
@@ -122,74 +122,65 @@ def draw_section(url, key_prefix, ev_type):
                 if current_quota > prev_quota:
                     st.toast(f"RESTOCK: {m['member_name']} ({m['label']}) - Sesi {sesi['label']} (Kuota: {current_quota})", icon="🚨")
                     
-            # Simpan kuota ke session state
             st.session_state.quota_history[ticket_key] = current_quota
+            # --------------------------
             
-            # Pengkondisian Badge Status Berdasarkan Sisa Kuota
-            if current_quota <= 0: 
-                cls, lbl = "sold", "HABIS"
-            elif current_quota < limit: 
-                cls, lbl = "warn", f"SISA {current_quota}"
-            else: 
-                cls, lbl = "avail", f"SISA {current_quota}"
+            if current_quota <= 0: cls, lbl = "sold", "HABIS"
+            elif current_quota < limit: cls, lbl = "warn", f"SISA {current_quota}"
+            else: cls, lbl = "avail", f"SISA {current_quota}"
             
             html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
+        
+    if not has_data and query:
+        st.warning(f"Oshi tidak ditemukan di tim ini.")
 
 # --- 6. LAYOUT LOKASI & TABS ---
-# Radio button untuk memilih filter kota utama
 kota = st.radio("📍 Pilih Lokasi Event:", ["Surabaya", "Yogyakarta"], horizontal=True)
 st.write("") 
 
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
-# Mengelompokkan URL API berdasarkan pilihan kota dan tipe tiket
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id"
-    api_2shot_p  = "" # Sesuai request, kosongkan dulu jika belum ada API
+    api_2shot_p  = "" 
     api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A/bonus?lang=id"
-    api_mng_p    = "" # Sesuai request, kosongkan dulu jika belum ada API
+    api_mng_p    = "" 
 else: # Yogyakarta
-    api_2shot_ld = "" # Sesuai request, kosongkan dulu jika belum ada API
+    api_2shot_ld = "" 
     api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EXCD2C/bonus?lang=id"
-    api_mng_ld   = "" # Sesuai request, kosongkan dulu jika belum ada API
+    api_mng_ld   = "" 
     api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXCB75/bonus?lang=id"
 
 # --- TAB 1: INTERFACE 2-SHOT ---
 with t1:
-    if kota == "Surabaya":
-        st.markdown("### 💙 Team Love & 💛 Team Dream (Surabaya)")
-        draw_section(api_2shot_ld, "2s_sby_ld", "2shot")
-        
-        st.markdown("---")
-        st.markdown("### ❤️ Team Passion (Surabaya)")
-        draw_section(api_2shot_p, "2s_sby_p", "2shot")
-        
-    elif kota == "Yogyakarta":
-        st.markdown("### ❤️ Team Passion (Yogyakarta)")
-        draw_section(api_2shot_p, "2s_ygy_p", "2shot")
-        
-        st.markdown("---")
-        st.markdown("### 💙 Team Love & 💛 Team Dream (Yogyakarta)")
-        draw_section(api_2shot_ld, "2s_ygy_ld", "2shot")
+    query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
+    
+    st.markdown("### 💙 Team Love")
+    draw_section(api_2shot_ld if kota == "Surabaya" else api_2shot_ld, "2shot", query_2s, "LOVE")
+    
+    st.markdown("---")
+    st.markdown("### 💛 Team Dream")
+    draw_section(api_2shot_ld if kota == "Surabaya" else api_2shot_ld, "2shot", query_2s, "DREAM")
+    
+    st.markdown("---")
+    st.markdown("### ❤️ Team Passion")
+    draw_section(api_2shot_p if kota == "Surabaya" else api_2shot_p, "2shot", query_2s, "PASSION")
 
 # --- TAB 2: INTERFACE MEET & GREET ---
 with t2:
-    if kota == "Surabaya":
-        st.markdown("### 💙 Team Love & 💛 Team Dream (Surabaya)")
-        draw_section(api_mng_ld, "mng_sby_ld", "mng")
-        
-        st.markdown("---")
-        st.markdown("### ❤️ Team Passion (Surabaya)")
-        draw_section(api_mng_p, "mng_sby_p", "mng")
-        
-    elif kota == "Yogyakarta":
-        st.markdown("### ❤️ Team Passion (Yogyakarta)")
-        draw_section(api_mng_p, "mng_ygy_p", "mng")
-        
-        st.markdown("---")
-        st.markdown("### 💙 Team Love & 💛 Team Dream (Yogyakarta)")
-        draw_section(api_mng_ld, "mng_ygy_ld", "mng")
+    query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
+    
+    st.markdown("### 💙 Team Love")
+    draw_section(api_mng_ld if kota == "Surabaya" else api_mng_ld, "mng", query_mng, "LOVE")
+    
+    st.markdown("---")
+    st.markdown("### 💛 Team Dream")
+    draw_section(api_mng_ld if kota == "Surabaya" else api_mng_ld, "mng", query_mng, "DREAM")
+    
+    st.markdown("---")
+    st.markdown("### ❤️ Team Passion")
+    draw_section(api_mng_p if kota == "Surabaya" else api_mng_p, "mng", query_mng, "PASSION")
