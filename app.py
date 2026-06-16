@@ -38,8 +38,10 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 /* Grid System */
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; }
 
-/* Link Wrapper agar layout grid tidak pecah */
-.card-link { text-decoration: none; color: inherit; display: block; height: 100%; }
+/* Fix Hyperlink Style (Hapus warna biru & garis bawah bawaan Streamlit) */
+a.card-link { text-decoration: none !important; color: inherit !important; display: block; height: 100%; }
+a.card-link:hover { text-decoration: none !important; color: inherit !important; }
+a.card-link .c-member, a.card-link .c-jalur { color: inherit !important; text-decoration: none !important; }
 
 /* Card Design */
 .ldp-card { 
@@ -165,8 +167,7 @@ def draw_section(url, ev_type, query, team_filter=None):
             elif current_quota < limit: cls, lbl = "warn", f"SISA {current_quota}"
             else: cls, lbl = "avail", f"SISA {current_quota}"
             
-            # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru
-            # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru
+            # Membungkus Card dengan tag <a> yang mengarah ke link pembelian di Tab Baru (Satu baris rapat!)
             html += f'<a href="{purchase_link}" target="_blank" class="card-link"><div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div></a>'
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
