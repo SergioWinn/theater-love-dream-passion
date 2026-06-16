@@ -72,7 +72,7 @@ st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 st.markdown('<div class="ldp-header"><h1 class="ldp-title">LDP Tour: Surabaya & Yogyakarta</h1><div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div></div>', unsafe_allow_html=True)
 
 # --- 5. DATA ENGINE ---
-@st.cache_data(ttl=4) # Cache berlaku 4 detik agar API tidak di-spam berlebihan
+@st.cache_data(ttl=4)
 def fetch_data(url):
     if not url:
         return None
@@ -85,7 +85,7 @@ def fetch_data(url):
 
 def draw_section(url, ev_type, query, team_filter=None):
     if not url:
-        st.info(f"API untuk tim ini belum rilis.")
+        # Langsung return tanpa memberikan pesan peringatan apapun
         return
 
     data = fetch_data(url)
@@ -95,7 +95,6 @@ def draw_section(url, ev_type, query, team_filter=None):
 
     has_data = False
     for sesi in data.get('data', []):
-        # Memisahkan Sesi berdasarkan nama Tim (LOVE / DREAM / PASSION)
         if team_filter and team_filter.upper() not in sesi['label'].upper():
             continue
 
@@ -159,28 +158,28 @@ else: # Yogyakarta
 with t1:
     query_2s = st.text_input("🔍 Cari Oshi di 2-Shot...", key=f"s_2s_{kota}").lower().strip()
     
-    st.markdown("### 💙 Team Love")
-    draw_section(api_2shot_ld if kota == "Surabaya" else api_2shot_ld, "2shot", query_2s, "LOVE")
+    st.markdown("### 🩷 Team Love")
+    draw_section(api_2shot_ld, "2shot", query_2s, "LOVE")
     
     st.markdown("---")
-    st.markdown("### 💛 Team Dream")
-    draw_section(api_2shot_ld if kota == "Surabaya" else api_2shot_ld, "2shot", query_2s, "DREAM")
+    st.markdown("### ⭐ Team Dream")
+    draw_section(api_2shot_ld, "2shot", query_2s, "DREAM")
     
     st.markdown("---")
-    st.markdown("### ❤️ Team Passion")
-    draw_section(api_2shot_p if kota == "Surabaya" else api_2shot_p, "2shot", query_2s, "PASSION")
+    st.markdown("### 🔥 Team Passion")
+    draw_section(api_2shot_p, "2shot", query_2s, "PASSION")
 
 # --- TAB 2: INTERFACE MEET & GREET ---
 with t2:
     query_mng = st.text_input("🔍 Cari Oshi di Meet & Greet...", key=f"s_mng_{kota}").lower().strip()
     
-    st.markdown("### 💙 Team Love")
-    draw_section(api_mng_ld if kota == "Surabaya" else api_mng_ld, "mng", query_mng, "LOVE")
+    st.markdown("### 🩷 Team Love")
+    draw_section(api_mng_ld, "mng", query_mng, "LOVE")
     
     st.markdown("---")
-    st.markdown("### 💛 Team Dream")
-    draw_section(api_mng_ld if kota == "Surabaya" else api_mng_ld, "mng", query_mng, "DREAM")
+    st.markdown("### ⭐ Team Dream")
+    draw_section(api_mng_ld, "mng", query_mng, "DREAM")
     
     st.markdown("---")
-    st.markdown("### ❤️ Team Passion")
-    draw_section(api_mng_p if kota == "Surabaya" else api_mng_p, "mng", query_mng, "PASSION")
+    st.markdown("### 🔥 Team Passion")
+    draw_section(api_mng_p, "mng", query_mng, "PASSION")
