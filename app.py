@@ -36,20 +36,21 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } }
 
 /* Grid System */
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; margin-bottom: 30px; }
 
 /* Link Badge Styling */
-a.badge-link { text-decoration: none !important; display: block; margin-top: auto; }
+a.badge-link { text-decoration: none !important; display: block; margin-top: auto; width: 100%; }
 
 /* Card Design */
 .ldp-card { 
     background: rgba(128,128,128,0.05); 
     border-radius: 15px; 
-    padding: 24px 15px; 
+    padding: 20px 15px; 
     border: 1px solid rgba(128,128,128,0.15); 
     display: flex; 
     flex-direction: column; 
     justify-content: space-between; 
+    align-items: center;
     text-align: center; 
     transition: 0.3s ease;
     height: 100%;
@@ -63,19 +64,78 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
 
 @keyframes glow { 0% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } 50% { box-shadow: 0 0 15px rgba(251,191,36,0.3); } 100% { box-shadow: 0 0 5px rgba(251,191,36,0.1); } }
 
-.c-jalur { font-size: 10px; opacity: 0.5; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-.c-member { font-weight: 700; font-size: 16px; line-height: 1.2; margin-bottom: 20px; height: 2.5em; overflow: hidden; }
+/* Foto Kabesha CDN Proxy Async */
+.c-photo { 
+    width: 74px; 
+    height: 74px; 
+    border-radius: 50%; 
+    background-size: cover; 
+    background-position: center 10%; 
+    background-repeat: no-repeat;
+    margin: 0 auto 12px auto; 
+    border: 2px solid rgba(255, 255, 255, 0.9); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+    background-color: #2a2a2a; 
+}
 
-.c-badge { font-size: 10px; font-weight: 800; padding: 7px; border-radius: 20px; text-transform: uppercase; width: 100%; display: block; }
-.ldp-card.avail .c-badge { background: rgba(16,185,129,0.15); color: #10B981; cursor: pointer; }
-.ldp-card.warn .c-badge { background: rgba(251,191,36,0.2); color: #D97706; cursor: pointer; }
-.ldp-card.sold .c-badge { background: #EF4444; color: #fff; cursor: not-allowed; }
+.c-jalur { font-size: 10px; opacity: 0.5; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; width: 100%; }
+.c-member { font-weight: 700; font-size: 15px; line-height: 1.2; margin-bottom: 8px; height: 2.4em; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; }
+
+/* --- SMART PROGRESS BUTTON --- */
+.c-stats { 
+    font-size: 11px; 
+    color: #888; 
+    margin-bottom: 6px; 
+    display: flex; 
+    justify-content: center;
+    width: 100%; 
+    padding: 0 4px; 
+}
+.c-stats b { color: #ccc; margin-left: 3px; }
+
+.c-prog-btn { 
+    position: relative; 
+    width: 100%; 
+    height: 32px; 
+    background: rgba(255,255,255,0.05); 
+    border-radius: 8px; 
+    overflow: hidden; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    transition: all 0.2s ease; 
+}
+.c-prog-btn:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-1px); }
+.c-prog-fill { 
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    height: 100%; 
+    transition: width 0.5s ease; 
+    z-index: 0; 
+}
+
+/* Pewarnaan Indikator Fill Button */
+.ldp-card.avail .c-prog-fill { background: rgba(16,185,129, 0.8); }
+.ldp-card.warn .c-prog-fill { background: rgba(217,119,6, 0.8); }
+.ldp-card.sold .c-prog-fill { background: rgba(239,68,68, 0.8); }
+
+.c-prog-text { 
+    position: relative; 
+    z-index: 1; 
+    font-size: 11px; 
+    font-weight: 800; 
+    color: #fff; 
+    letter-spacing: 0.5px; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8); 
+}
 
 /* Mobile optimization */
 @media (max-width: 500px) { 
     .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } 
     .ldp-card { padding: 18px 10px; }
-    .c-member { font-size: 14px; }
+    .c-member { font-size: 13px; }
     .ldp-title { font-size: 2rem; }
     .credit-container { flex-direction: column; gap: 10px; }
 }
@@ -99,19 +159,36 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- 5. DATA ENGINE ---
+# --- 5. DATA ENGINE & FOTO MEMBER ---
+HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
+@st.cache_data(ttl=3600)
+def get_photo_map():
+    url = "https://jkt48.com/api/v1/members?lang=id"
+    photo_map = {}
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        if response.status_code == 200:
+            for member in response.json().get("data", []):
+                name = member.get("name", "").strip().lower()
+                photo = member.get("photo", "")
+                if name and photo:
+                    photo_map[name] = photo
+    except:
+        pass
+    return photo_map
+
 @st.cache_data(ttl=4)
 def fetch_data(url):
     if not url:
         return None
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
     try:
-        r = requests.get(url, headers=headers, timeout=5)
+        r = requests.get(url, headers=HEADERS, timeout=5)
         return r.json() if r.status_code == 200 else None
     except:
         return None
 
-def draw_section(url, ev_type, query, team_filter=None):
+def draw_section(url, ev_type, query, team_filter=None, photo_map=None):
     if not url:
         return
 
@@ -120,21 +197,18 @@ def draw_section(url, ev_type, query, team_filter=None):
         st.info("Menunggu data terbaru dari server JKT48...")
         return
 
-    # Mengekstrak ID Event secara akurat baik dari format baru maupun lama
     try:
-        # Mengambil kode EX.. dan membersihkan parameter ?lang=id atau /bonus
         event_id = url.split("/exclusives/")[1].split("/")[0].split("?")[0]
     except:
         event_id = ""
         
     purchase_link = f"https://jkt48.com/purchase/exclusive?code={event_id}"
 
-    # MENYESUAIKAN FORMAT DATA (SUPPORT API LAMA DAN BARU)
     raw_data = data.get('data')
     if isinstance(raw_data, dict):
-        sessions = raw_data.get('session', []) # Format Baru
+        sessions = raw_data.get('session', [])
     elif isinstance(raw_data, list):
-        sessions = raw_data # Format Lama
+        sessions = raw_data
     else:
         sessions = []
 
@@ -143,10 +217,8 @@ def draw_section(url, ev_type, query, team_filter=None):
         if team_filter and team_filter.upper() not in sesi.get('label', '').upper():
             continue
 
-        # Cek session_detail (Format Baru) atau session_members (Format Lama)
         members = sesi.get('session_detail', sesi.get('session_members', []))
         
-        # Filter pencarian Member
         if query:
             members = [m for m in members if query in m.get('jkt48_member_name', m.get('member_name', '')).lower()]
         
@@ -160,35 +232,74 @@ def draw_section(url, ev_type, query, team_filter=None):
         
         html = '<div class="cards-grid">'
         for m in members:
-            # Mengakomodasi perubahan nama key dari format baru dan lama
             member_name = m.get('jkt48_member_name', m.get('member_name', ''))
             current_quota = m.get('available_quota', m.get('quota', 0))
-            jalur_label = m.get("label", "")
-            
+            tickets_sold = m.get('tickets_sold', 0)
+            jalur_label = m.get("label", "-")
             limit = 5 if ev_type == "2shot" else 20
             
-            # --- CEK RESTOCK TIKET ---
-            ticket_key = f"{ev_type}_{sesi.get('label', '')}_{member_name}_{jalur_label}"
+            # --- FOTO KABESHA ---
+            safe_name = member_name.strip().lower()
+            raw_photo_url = photo_map.get(safe_name, "") if photo_map else ""
+            if raw_photo_url:
+                proxy_url = f"https://wsrv.nl/?url={raw_photo_url}&w=100&output=webp"
+            else:
+                proxy_url = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
             
+            img_html = f'<div class="c-photo" style="background-image: url(\'{proxy_url}\');" title="{member_name}"></div>'
+
+            # --- RESTOCK TOAST ---
+            ticket_key = f"{ev_type}_{sesi.get('label', '')}_{member_name}_{jalur_label}"
             if ticket_key in st.session_state.quota_history:
                 prev_quota = st.session_state.quota_history[ticket_key]
                 if current_quota > prev_quota:
                     st.toast(f"RESTOCK: {member_name} ({jalur_label}) - Sesi {display_label} (Kuota: {current_quota})", icon="🚨")
-                    
             st.session_state.quota_history[ticket_key] = current_quota
-            # --------------------------
             
-            # PEMISAHAN LOGIKA TIKET HABIS vs TIKET TERSEDIA
+            # --- SMART PROGRESS LOGIC ---
+            total_slot_capacity = tickets_sold + current_quota
+            sold_percentage = (tickets_sold / total_slot_capacity * 100) if total_slot_capacity > 0 else 0
+
             if current_quota <= 0: 
-                cls, lbl = "sold", "HABIS"
-                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{jalur_label}</div><div class="c-member">{member_name}</div><div class="c-badge">{lbl}</div></div>'
+                cls, btn_text = "sold", "HABIS"
+                sold_percentage = 100
+                bar_color = "#EF4444"
+            elif current_quota < limit: 
+                cls, btn_text = "warn", f"SISA {current_quota}"
+                bar_color = "#FBBF24"
             else: 
-                if current_quota < limit: 
-                    cls, lbl = "warn", f"SISA {current_quota}"
-                else: 
-                    cls, lbl = "avail", f"SISA {current_quota}"
+                cls, btn_text = "avail", f"SISA {current_quota}"
+                bar_color = "#10B981"
+
+            combined_ui = f"""
+            <div class="c-stats">
+                <span>Terjual: <b>{tickets_sold}</b></span>
+            </div>
+            <div class="c-prog-btn">
+                <div class="c-prog-fill" style="width: {sold_percentage}%; background-color: {bar_color};"></div>
+                <div class="c-prog-text">{btn_text}</div>
+            </div>
+            """
                 
-                html += f'<div class="ldp-card {cls}"><div class="c-jalur">{jalur_label}</div><div class="c-member">{member_name}</div><a href="{purchase_link}" target="_blank" class="badge-link"><div class="c-badge">{lbl}</div></a></div>'
+            # Render HTML
+            if current_quota <= 0:
+                html += (
+                    f'<div class="ldp-card {cls}">'
+                    f'<div class="c-jalur">{jalur_label}</div>'
+                    f'{img_html}'
+                    f'<div class="c-member">{member_name}</div>'
+                    f'<div style="margin-top: auto; width: 100%;">{combined_ui}</div>'
+                    f'</div>'
+                )
+            else:
+                html += (
+                    f'<div class="ldp-card {cls}">'
+                    f'<div class="c-jalur">{jalur_label}</div>'
+                    f'{img_html}'
+                    f'<div class="c-member">{member_name}</div>'
+                    f'<a href="{purchase_link}" target="_blank" class="badge-link">{combined_ui}</a>'
+                    f'</div>'
+                )
         
         st.markdown(html + '</div>', unsafe_allow_html=True)
         st.write("")
@@ -197,10 +308,11 @@ def draw_section(url, ev_type, query, team_filter=None):
         st.warning(f"Member tidak ditemukan di tim ini.")
 
 # --- 6. LAYOUT LOKASI & TABS ---
+photo_map = get_photo_map()
+
 kota = st.radio("📍 Pilih Lokasi Event:", ["Surabaya", "Yogyakarta"], horizontal=True)
 
-# Menambahkan Info Petunjuk untuk user awam
-st.info("💡 **Petunjuk:** Klik tombol **SISA** pada kartu member untuk langsung menuju halaman pembelian tiket JKT48.")
+st.info("💡 **Petunjuk:** Klik bagian bawah kartu member (yang ada warna hijaunya) untuk langsung menuju halaman pembelian tiket JKT48.")
 st.write("") 
 
 t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
@@ -209,8 +321,6 @@ t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 if kota == "Surabaya":
     api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id" 
     api_2shot_p  = "" 
-    
-    # Kamu bisa mengganti URL di bawah dengan API yang baru tanpa bonus
     api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A?lang=id" 
     api_mng_p    = "" 
 else: # Yogyakarta
@@ -234,7 +344,7 @@ with t1:
         
         for idx, tab in enumerate(rendered_tabs_2s):
             with tab:
-                draw_section(tabs_2s_config[idx][1], "2shot", query_2s, tabs_2s_config[idx][2])
+                draw_section(tabs_2s_config[idx][1], "2shot", query_2s, tabs_2s_config[idx][2], photo_map)
     else:
         st.info("🎟️ Data/API 2-Shot belum dirilis untuk kota ini.")
 
@@ -253,6 +363,6 @@ with t2:
         
         for idx, tab in enumerate(rendered_tabs_mng):
             with tab:
-                draw_section(tabs_mng_config[idx][1], "mng", query_mng, tabs_mng_config[idx][2])
+                draw_section(tabs_mng_config[idx][1], "mng", query_mng, tabs_mng_config[idx][2], photo_map)
     else:
         st.info("🎟️ Data/API Meet & Greet belum dirilis untuk kota ini.")
