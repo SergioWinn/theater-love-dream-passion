@@ -319,15 +319,15 @@ t1, t2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 # --- CONTROLLER JALUR API ---
 if kota == "Surabaya":
-    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773/bonus?lang=id" 
-    api_2shot_p  = "" 
+    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EX3773?lang=id" 
+    api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EX38A5?lang=id" 
     api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A?lang=id" 
-    api_mng_p    = "" 
+    api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXAFB8?lang=id" 
 else: # Yogyakarta
-    api_2shot_ld = "" 
-    api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EXCD2C/bonus?lang=id"
-    api_mng_ld   = "" 
-    api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXCB75/bonus?lang=id"
+    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EXEXFB66?lang=id" 
+    api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EXCD2C?lang=id"
+    api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EXA340?lang=id" 
+    api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXCB75?lang=id"
 
 # --- TAB 1: INTERFACE 2-SHOT ---
 with t1:
