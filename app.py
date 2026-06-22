@@ -12,7 +12,7 @@ st_autorefresh(interval=5000, key="ldp_tour_refresh_system")
 if "quota_history" not in st.session_state:
     st.session_state.quota_history = {}
 
-# --- 3. PREMIUM UI STYLING ---
+# --- 3. PREMIUM UI STYLING (DARK & LIGHT MODE ADAPTIVE) ---
 css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -43,7 +43,7 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
 
 /* Card Design */
 .ldp-card { 
-    background: rgba(128,128,128,0.05); 
+    background: rgba(128,128,128,0.03); 
     border-radius: 15px; 
     padding: 20px 15px; 
     border: 1px solid rgba(128,128,128,0.15); 
@@ -55,7 +55,7 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
     transition: 0.3s ease;
     height: 100%;
 }
-.ldp-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: rgba(128,128,128,0.3); }
+.ldp-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: rgba(128,128,128,0.4); }
 
 /* Border Status */
 .ldp-card.avail { border-bottom: 5px solid #10B981; }
@@ -73,9 +73,9 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
     background-position: center 10%; 
     background-repeat: no-repeat;
     margin: 0 auto 12px auto; 
-    border: 2px solid rgba(255, 255, 255, 0.9); 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-    background-color: #2a2a2a; 
+    border: 2px solid rgba(128, 128, 128, 0.2); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    background-color: rgba(128, 128, 128, 0.1); 
 }
 
 .c-jalur { font-size: 10px; opacity: 0.5; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; width: 100%; }
@@ -84,29 +84,29 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
 /* --- SMART PROGRESS BUTTON --- */
 .c-stats { 
     font-size: 11px; 
-    color: #888; 
+    opacity: 0.8;
     margin-bottom: 6px; 
     display: flex; 
     justify-content: center;
     width: 100%; 
     padding: 0 4px; 
 }
-.c-stats b { color: #ccc; margin-left: 3px; }
+.c-stats b { font-weight: 800; margin-left: 3px; }
 
 .c-prog-btn { 
     position: relative; 
     width: 100%; 
     height: 32px; 
-    background: rgba(255,255,255,0.05); 
+    background: rgba(128,128,128,0.15); 
     border-radius: 8px; 
     overflow: hidden; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    border: 1px solid rgba(255,255,255,0.1); 
+    border: 1px solid rgba(128,128,128,0.2); 
     transition: all 0.2s ease; 
 }
-.c-prog-btn:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-1px); }
+.c-prog-btn:hover { border-color: rgba(128,128,128,0.5); transform: translateY(-1px); }
 .c-prog-fill { 
     position: absolute; 
     left: 0; 
@@ -117,18 +117,18 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
 }
 
 /* Pewarnaan Indikator Fill Button */
-.ldp-card.avail .c-prog-fill { background: rgba(16,185,129, 0.8); }
-.ldp-card.warn .c-prog-fill { background: rgba(217,119,6, 0.8); }
-.ldp-card.sold .c-prog-fill { background: rgba(239,68,68, 0.8); }
+.ldp-card.avail .c-prog-fill { background: rgba(16,185,129, 0.85); }
+.ldp-card.warn .c-prog-fill { background: rgba(217,119,6, 0.85); }
+.ldp-card.sold .c-prog-fill { background: rgba(239,68,68, 0.85); }
 
 .c-prog-text { 
     position: relative; 
     z-index: 1; 
     font-size: 11px; 
     font-weight: 800; 
-    color: #fff; 
+    color: #ffffff; 
     letter-spacing: 0.5px; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8); 
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.8); 
 }
 
 /* Mobile optimization */
@@ -324,7 +324,7 @@ if kota == "Surabaya":
     api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EX9A4A?lang=id" 
     api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXAFB8?lang=id" 
 else: # Yogyakarta
-    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EXEXFB66?lang=id" 
+    api_2shot_ld = "https://jkt48.com/api/v1/exclusives/EXFB66?lang=id" 
     api_2shot_p  = "https://jkt48.com/api/v1/exclusives/EXCD2C?lang=id"
     api_mng_ld   = "https://jkt48.com/api/v1/exclusives/EXA340?lang=id" 
     api_mng_p    = "https://jkt48.com/api/v1/exclusives/EXCB75?lang=id"
