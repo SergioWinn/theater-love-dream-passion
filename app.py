@@ -43,7 +43,7 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
 
 /* Card Design */
 .ldp-card { 
-    background: rgba(128,128,128,0.03); 
+    background: rgba(128,128,128,0.05); 
     border-radius: 15px; 
     padding: 20px 15px; 
     border: 1px solid rgba(128,128,128,0.15); 
@@ -55,7 +55,7 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
     transition: 0.3s ease;
     height: 100%;
 }
-.ldp-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: rgba(128,128,128,0.4); }
+.ldp-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: rgba(128,128,128,0.3); }
 
 /* Border Status */
 .ldp-card.avail { border-bottom: 5px solid #10B981; }
@@ -69,44 +69,73 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
     width: 74px; 
     height: 74px; 
     border-radius: 50%; 
-    background-size: cover; 
-    background-position: center 10%; 
+    /* 1. Zoom-in 125% agar wajah & pundak member pas memenuhi lingkaran */
+    background-size: 125%; 
+    /* 2. Turunkan sedikit posisinya agar kepala tidak terpotong saat di-zoom */
+    background-position: center 15%; 
     background-repeat: no-repeat;
     margin: 0 auto 12px auto; 
     border: 2px solid rgba(128, 128, 128, 0.2); 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-    background-color: rgba(128, 128, 128, 0.1); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+    /* 3. Beri warna solid putih studio agar PNG transparan menjadi solid circle */
+    background-color: #ffffff; 
 }
 
-.c-jalur { font-size: 10px; opacity: 0.5; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; width: 100%; }
-.c-member { font-weight: 700; font-size: 15px; line-height: 1.2; margin-bottom: 8px; height: 2.4em; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; }
+.c-jalur { 
+    font-size: 10px; 
+    opacity: 0.6; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    margin-bottom: 8px; 
+    letter-spacing: 0.5px; 
+    width: 100%; 
+    max-width: 100%; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    display: block; 
+}
 
-/* --- SMART PROGRESS BUTTON --- */
+.c-member { 
+    font-weight: 700; font-size: 15px; line-height: 1.2; margin-bottom: 8px; 
+    height: 2.4em; width: 100%;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
+    overflow: hidden; text-overflow: ellipsis; 
+}
+
+/* --- SMART PROGRESS BUTTON (UI Upgrade) --- */
 .c-stats { 
     font-size: 11px; 
-    opacity: 0.8;
+    color: inherit; 
+    opacity: 0.9; /* Cukup tegas di Light Mode */
     margin-bottom: 6px; 
     display: flex; 
     justify-content: center;
     width: 100%; 
     padding: 0 4px; 
 }
-.c-stats b { font-weight: 800; margin-left: 3px; }
+.c-stats b { 
+    color: inherit; 
+    opacity: 1; 
+    margin-left: 3px; 
+    font-weight: 800; 
+}
 
 .c-prog-btn { 
     position: relative; 
     width: 100%; 
     height: 32px; 
-    background: rgba(128,128,128,0.15); 
+    /* Background dinamis yang menyesuaikan terang/gelap */
+    background: rgba(128, 128, 128, 0.25); 
     border-radius: 8px; 
     overflow: hidden; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    border: 1px solid rgba(128,128,128,0.2); 
+    border: 1px solid rgba(128, 128, 128, 0.4); 
     transition: all 0.2s ease; 
 }
-.c-prog-btn:hover { border-color: rgba(128,128,128,0.5); transform: translateY(-1px); }
+.c-prog-btn:hover { border-color: rgba(128,128,128,0.6); transform: translateY(-1px); }
 .c-prog-fill { 
     position: absolute; 
     left: 0; 
@@ -128,7 +157,7 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
     font-weight: 800; 
     color: #ffffff; 
     letter-spacing: 0.5px; 
-    text-shadow: 1px 1px 4px rgba(0,0,0,0.8); 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8); 
 }
 
 /* Mobile optimization */
@@ -138,6 +167,7 @@ a.badge-link { text-decoration: none !important; display: block; margin-top: aut
     .c-member { font-size: 13px; }
     .ldp-title { font-size: 2rem; }
     .credit-container { flex-direction: column; gap: 10px; }
+    .c-jalur { font-size: 8.5px; letter-spacing: 0px; } 
 }
 </style>
 """
@@ -285,7 +315,7 @@ def draw_section(url, ev_type, query, team_filter=None, photo_map=None):
             if current_quota <= 0:
                 html += (
                     f'<div class="ldp-card {cls}">'
-                    f'<div class="c-jalur">{jalur_label}</div>'
+                    f'<div class="c-jalur" title="{jalur_label}">{jalur_label}</div>'
                     f'{img_html}'
                     f'<div class="c-member">{member_name}</div>'
                     f'<div style="margin-top: auto; width: 100%;">{combined_ui}</div>'
@@ -294,7 +324,7 @@ def draw_section(url, ev_type, query, team_filter=None, photo_map=None):
             else:
                 html += (
                     f'<div class="ldp-card {cls}">'
-                    f'<div class="c-jalur">{jalur_label}</div>'
+                    f'<div class="c-jalur" title="{jalur_label}">{jalur_label}</div>'
                     f'{img_html}'
                     f'<div class="c-member">{member_name}</div>'
                     f'<a href="{purchase_link}" target="_blank" class="badge-link">{combined_ui}</a>'
